@@ -6,6 +6,8 @@ const cyanColor = 'rgb(46, 217, 255)';
 const orangeColor = 'rgb(252, 135, 56)';
 const redColor = 'rgb(255, 74, 96)';
 const noColor = 'rgba(0, 0, 0, 0)';
+const disabledColor = 'rgb(48, 48, 55)';
+
 describe('MainActionCards', () => {
   it('renders unclaimed rewards with a healthy c-ratio', () => {
     cy.viewport(1000, 1000);
@@ -19,7 +21,7 @@ describe('MainActionCards', () => {
           targetCratioPercentage={350}
           currentCRatioPercentage={350}
           nextEpochStartDate={new Date()}
-          snxPrice="2.00"
+          rewardsDollarValue={100}
           hasClaimed={false}
           isFlagged={false}
           isLoading={false}
@@ -46,7 +48,9 @@ describe('MainActionCards', () => {
       .should('include.text', 'Your ratio is looking healthy')
       .should('have.css', 'color', greenColor);
 
-    cy.get('[data-testid="snx price"]').should('be.visible').should('include.text', '2.00');
+    cy.get('[data-testid="value of rewards"]')
+      .should('be.visible')
+      .should('include.text', '100.00');
   });
   it('renders claimed rewards with a healthy c-ratio', () => {
     cy.viewport(1000, 1000);
@@ -59,7 +63,7 @@ describe('MainActionCards', () => {
           targetCratioPercentage={350}
           currentCRatioPercentage={350}
           nextEpochStartDate={new Date()}
-          snxPrice="2.00"
+          rewardsDollarValue={0}
           hasClaimed={true}
           isFlagged={false}
           isLoading={false}
@@ -80,6 +84,7 @@ describe('MainActionCards', () => {
       .should('be.visible')
       .should('include.text', 'Rewards explained')
       .should('have.css', 'background-color', noColor);
+    cy.get('[data-testid="value of rewards"]').should('not.exist');
   });
   it('renders unclaimed rewards with a unhealthy c-ratio', () => {
     cy.viewport(1000, 1000);
@@ -92,7 +97,7 @@ describe('MainActionCards', () => {
           targetCratioPercentage={350}
           currentCRatioPercentage={300}
           nextEpochStartDate={new Date()}
-          snxPrice="2.00"
+          rewardsDollarValue={100}
           hasClaimed={false}
           isFlagged={false}
           isLoading={false}
@@ -110,10 +115,50 @@ describe('MainActionCards', () => {
       .should('have.css', 'background-color', noColor);
     cy.get('[data-testid="collect button"]')
       .should('be.visible')
-      .should('include.text', 'Rewards explained');
+      .should('include.text', 'Claim your rewards')
+      .should('be.disabled')
+      .should('have.css', 'background-color', disabledColor);
+
     cy.get('[data-testid="burn badge"]')
       .should('be.visible')
       .should('include.text', 'Adjust to collect weekly rewards');
+  });
+  it('renders unclaimed rewards with a healthy c-ratio', () => {
+    cy.viewport(1000, 1000);
+    cy.mount(
+      <Box paddingY="7" paddingX="4" bg="navy.900" flex="1">
+        <MainActionCardsUi
+          connectWallet={async () => {}}
+          walletAddress="vitalik.eth"
+          liquidationCratioPercentage={150}
+          targetCratioPercentage={350}
+          currentCRatioPercentage={400}
+          nextEpochStartDate={new Date()}
+          rewardsDollarValue={100}
+          hasClaimed={false}
+          isFlagged={false}
+          isLoading={false}
+        />
+      </Box>
+    );
+
+    cy.get('[data-testid="maintain button"]')
+      .should('be.visible')
+      .should('include.text', 'Maintain')
+      .should('have.css', 'background-color', noColor);
+    cy.get('[data-testid="stake button"]')
+      .should('be.visible')
+      .should('include.text', 'Stake & Borrow More')
+      .should('have.css', 'background-color', noColor);
+    cy.get('[data-testid="collect button"]')
+      .should('be.visible')
+      .should('include.text', 'Claim your rewards')
+      .should('have.css', 'background-color', greenColor);
+
+    cy.get('[data-testid="burn badge"]')
+      .should('be.visible')
+      .should('include.text', 'Your ratio is looking healthy')
+      .should('have.css', 'color', greenColor);
   });
 
   it('renders not staking', () => {
@@ -127,7 +172,7 @@ describe('MainActionCards', () => {
           targetCratioPercentage={350}
           currentCRatioPercentage={0}
           nextEpochStartDate={new Date()}
-          snxPrice="2.00"
+          rewardsDollarValue={0}
           hasClaimed={false}
           isFlagged={false}
           isLoading={false}
@@ -160,7 +205,7 @@ describe('MainActionCards', () => {
           targetCratioPercentage={350}
           currentCRatioPercentage={140}
           nextEpochStartDate={new Date()}
-          snxPrice="2.00"
+          rewardsDollarValue={100}
           hasClaimed={false}
           isFlagged={true}
           isLoading={false}
@@ -175,8 +220,8 @@ describe('MainActionCards', () => {
 
     cy.get('[data-testid="collect button"]')
       .should('be.visible')
-      .should('include.text', 'Rewards explained')
-      .should('have.css', 'background-color', noColor);
+      .should('include.text', 'Claim your rewards')
+      .should('have.css', 'background-color', disabledColor);
 
     cy.get('[data-testid="burn badge"]')
       .should('be.visible')
@@ -195,7 +240,7 @@ describe('MainActionCards', () => {
           targetCratioPercentage={0}
           currentCRatioPercentage={0}
           nextEpochStartDate={new Date()}
-          snxPrice="2.00"
+          rewardsDollarValue={100}
           hasClaimed={false}
           isFlagged={false}
           isLoading={false}
